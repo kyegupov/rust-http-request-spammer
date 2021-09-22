@@ -14,7 +14,7 @@ struct Counter {
 
 #[derive(StructOpt, Debug)]
 struct Opt {
-    #[structopt(default_value = "100")]
+    #[structopt(short = "r", default_value = "100")]
     num_threads: usize,
 }
 
@@ -28,7 +28,8 @@ async fn main() {
         tokio::spawn(async move {
             let client = reqwest::Client::new();
             loop {
-                let (success, count_bytes) = match client.get("http://localhost")
+                let (success, count_bytes) = match client
+                    .get("http://localhost")
                     .header("X-Email-Id", "someone@example.com")
                     .header("Connection", "keep-alive")
                     .send()
@@ -38,7 +39,7 @@ async fn main() {
                         let succ = resp.status().is_success();
                         (succ, resp.bytes().await.unwrap().len())
                     }
-                    Err(_) => (false, 0)
+                    Err(_) => (false, 0),
                 };
                 let mut c = counter_mutex.write().unwrap();
                 if success {
